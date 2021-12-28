@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: k8config-service
+spec:
+  selector:
+    app: k8config
+  ports:
+    - port: 80
+      targetPort: 8080
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: k8config-deployment
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 50%
+  selector:
+    matchLabels:
+      app: k8config
+  template:
+    metadata:
+      name: k8config
+      labels:
+        app: k8config
+    spec:
+      serviceAccountName: api-reader
+      containers:
+        - name: k8config-container
+          image: localhost:5000/k8config_new3:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_OPTIONS
+              value: "-Dspring.profiles.active=development"
+            - name: env.namespace
+              value: default
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          configMap:
+            name: k8config

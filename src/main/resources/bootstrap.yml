@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: k8config
+  cloud:
+    kubernetes:
+      reload:
+        period: 1000
+        enabled: true
+        monitoring-config-maps: true
+        mode: polling
+      config:
+        enabled: true
+        name: k8config
+        namespace: default
+        sources:
+          - name: k8config
+
+
+management:
+  endpoint:
+    restart:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: restart
